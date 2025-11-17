@@ -46,25 +46,13 @@ export async function broadcastAnnouncement(
     };
   }
 
-  // Actually send the broadcast
-  let emailSentCount = 0;
-  let smsSentCount = 0;
-  let totalProcessed = 0;
-  const failureReasons: Record<string, number> = {};
+  // Helper function to send to a single member across all channels
+  async function sendToMember(member: {
+    email?: string;
+    phone?: string;
+  }) {
+    const results = { emailSent: 0, smsSent: 0, errors: [] as string[] };
 
-  // TODO: This processes members one at a time which might be slow for large broadcasts
-  // Could add batching or parallel processing later if needed
-  for await (const member of memberDirectory.listRecipients(
-    input.audience.segment
-  )) {
-    totalProcessed++;
-
-    // Log progress so we know it's working
-    if (totalProcessed % 100 === 0) {
-      console.log(`Broadcast progress: ${totalProcessed} members processed`);
-    }
-
-    // Send via each requested channel
     for (const channel of input.channels) {
       try {
         if (channel === "EMAIL" && member.email) {
@@ -73,18 +61,60 @@ export async function broadcastAnnouncement(
             subject: "Gym Announcement",
             text: input.message,
           });
-          emailSentCount++;
+          results.emailSent++;
         } else if (channel === "SMS" && member.phone) {
           await smsProvider.send({
             to: member.phone,
             body: input.message,
           });
-          smsSentCount++;
+          results.smsSent++;
         }
       } catch (e: any) {
         const reason = e.message || "UNKNOWN_ERROR";
-        failureReasons[reason] = (failureReasons[reason] || 0) + 1;
+        results.errors.push(reason);
         logError(`Broadcast send failed for ${channel}: ${reason}`);
+      }
+    }
+
+    return results;
+  }
+
+  // Actually send the broadcast - process in batches for better performance
+  let emailSentCount = 0;
+  let smsSentCount = 0;
+  let totalProcessed = 0;
+  const failureReasons: Record<string, number> = {};
+
+  const batchSize = 15; // process 15 members at a time
+  let batch: Array<{ email?: string; phone?: string }> = [];
+
+  for await (const member of memberDirectory.listRecipients(
+    input.audience.segment
+  )) {
+    batch.push(member);
+
+    // Process batch when it reaches the size limit
+    if (batch.length >= batchSize) {
+      const batchPromises = batch.map((m) => sendToMember(m));
+      const results = await Promise.allSettled(batchPromises);
+
+      // Aggregate results from the batch
+      results.forEach((result) => {
+        if (result.status === "fulfilled") {
+          emailSentCount += result.value.emailSent;
+          smsSentCount += result.value.smsSent;
+          result.value.errors.forEach((err) => {
+            failureReasons[err] = (failureReasons[err] || 0) + 1;
+          });
+        }
+      });
+
+      totalProcessed += batch.length;
+      batch = []; // clear batch for next round
+
+      // Log progress so we know it's working
+      if (totalProcessed % 100 === 0 || totalProcessed % 90 === 0) {
+        console.log(`Broadcast progress: ${totalProcessed} members processed`);
       }
     }
 
@@ -93,6 +123,24 @@ export async function broadcastAnnouncement(
       logInfo("Reached max recipient limit for broadcast");
       break;
     }
+  }
+
+  // Process any remaining members in the last partial batch
+  if (batch.length > 0) {
+    const batchPromises = batch.map((m) => sendToMember(m));
+    const results = await Promise.allSettled(batchPromises);
+
+    results.forEach((result) => {
+      if (result.status === "fulfilled") {
+        emailSentCount += result.value.emailSent;
+        smsSentCount += result.value.smsSent;
+        result.value.errors.forEach((err) => {
+          failureReasons[err] = (failureReasons[err] || 0) + 1;
+        });
+      }
+    });
+
+    totalProcessed += batch.length;
   }
 
   logInfo(
