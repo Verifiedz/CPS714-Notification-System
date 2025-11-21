@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://comms.local/schemas/SendNotificationInput.schema.json",
+  "title": "SendNotificationInput",
+  "type": "object",
+  "required": [
+    "recipient",
+    "channels",
+    "template",
+    "variables"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "recipient": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 6
+        }
+      }
+    },
+    "channels": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "EMAIL",
+          "SMS"
+        ]
+      },
+      "minItems": 1
+    },
+    "template": {
+      "enum": [
+        "CLASS_REMINDER",
+        "BOOKING_CONFIRMATION",
+        "PAYMENT_RECEIPT",
+        "ANNOUNCEMENT"
+      ]
+    },
+    "variables": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

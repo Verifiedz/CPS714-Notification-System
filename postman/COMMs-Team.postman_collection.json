@@ -1,0 +1,125 @@
+{
+  "info": {
+    "name": "Fithub",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "c0f5e4c1-8a2e-4a5d-9d1a-commsteam"
+  },
+  "item": [
+    {
+      "name": "Send Notification",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ts = Math.floor(Date.now()/1000).toString();",
+              "pm.variables.set('timestamp', ts);",
+              "const raw = pm.request.body && pm.request.body.raw ? pm.request.body.raw : '{}';",
+              "let body = '{}'; try { body = JSON.stringify(JSON.parse(raw)); } catch(e) {}",
+              "const secret = pm.environment.get('HMAC_SECRET') || '';",
+              "const payload = ts + '.' + body;",
+              "const sig = CryptoJS.HmacSHA256(payload, secret).toString(CryptoJS.enc.Hex);",
+              "pm.variables.set('signature', sig);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Timestamp",
+            "value": "{{timestamp}}"
+          },
+          {
+            "key": "X-Signature",
+            "value": "{{signature}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "demo-idem-1"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"recipient\":{\"email\":\"user@example.com\",\"phone\":\"+15551234567\"},\"channels\":[\"EMAIL\",\"SMS\"],\"template\":\"BOOKING_CONFIRMATION\",\"variables\":{\"bookingId\":\"bk_123\",\"className\":\"Spin\",\"startTime\":\"2025-11-14T10:00:00Z\"}}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/notifications/send",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "notifications",
+            "send"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Broadcast Announcement",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const ts = Math.floor(Date.now()/1000).toString();",
+              "pm.variables.set('timestamp', ts);",
+              "const raw = pm.request.body && pm.request.body.raw ? pm.request.body.raw : '{}';",
+              "let body = '{}'; try { body = JSON.stringify(JSON.parse(raw)); } catch(e) {}",
+              "const secret = pm.environment.get('HMAC_SECRET') || '';",
+              "const payload = ts + '.' + body;",
+              "const sig = CryptoJS.HmacSHA256(payload, secret).toString(CryptoJS.enc.Hex);",
+              "pm.variables.set('signature', sig);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Timestamp",
+            "value": "{{timestamp}}"
+          },
+          {
+            "key": "X-Signature",
+            "value": "{{signature}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"message\":\"Pool closed for maintenance today 4-6pm.\",\"channels\":[\"EMAIL\"],\"audience\":{\"segment\":\"ALL_MEMBERS\"},\"dryRun\":true}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/announcements/broadcast",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "announcements",
+            "broadcast"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ]
+}

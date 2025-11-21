@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://comms.local/schemas/AnnouncementInput.schema.json",
+  "title": "AnnouncementInput",
+  "type": "object",
+  "required": [
+    "message",
+    "channels",
+    "audience"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "message": {
+      "type": "string",
+      "minLength": 1
+    },
+    "channels": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "EMAIL",
+          "SMS"
+        ]
+      },
+      "minItems": 1
+    },
+    "audience": {
+      "type": "object",
+      "required": [
+        "segment"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "segment": {
+          "enum": [
+            "ALL_MEMBERS",
+            "ACTIVE",
+            "PAST_DUE"
+          ]
+        }
+      }
+    },
+    "dryRun": {
+      "type": "boolean"
+    }
+  }
+}
