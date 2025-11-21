@@ -1,0 +1,42 @@
+# Build results
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+artifacts/
+
+# VS user-specific junk
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.rsuser
+
+# VS local settings
+.vs/
+
+# NuGet
+*.nupkg
+packages/
+**/packages/*/
+!*/*.nuspec
+
+# Rider / other IDEs
+.idea/
+*.iml
+
+# ASP.NET / .NET stuff
+*.dll
+*.exe
+*.pdb
+
+# Logs and temp
+*.log
+*.tmp
+*.temp
+
+# Frontend (if you have any)
+node_modules/
+dist/
+.env
+.env.*
