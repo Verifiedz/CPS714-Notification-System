@@ -2,7 +2,7 @@ import { validateBroadcastInput, BroadcastInput } from "./validatePayload";
 import { emailProvider } from "../infrastructure/emailProvider";
 import { smsProvider } from "../infrastructure/smsProvider";
 import { logInfo, logError } from "../infrastructure/logger";
-import { config } from "../infrastructure/shared/config";
+import { config } from "../shared/config";
 import { aggregateBatchResults } from "./_utils/batchHelpers";
 
 // Constants for broadcast processing
@@ -50,7 +50,7 @@ export async function broadcastAnnouncement(
       totalCount++;
 
       // Safety limit even for dry run
-      if (totalCount >= config.MAX_RECIPIENTS) {
+      if (totalCount >= config.maxRecipients) {
         logInfo("Hit max recipient limit during dry run");
         break;
       }
@@ -129,7 +129,7 @@ export async function broadcastAnnouncement(
     }
 
     // Safety check - don't process more than configured max
-    if (totalProcessed >= config.MAX_RECIPIENTS) {
+    if (totalProcessed >= config.maxRecipients) {
       logInfo("Reached max recipient limit for broadcast");
       break;
     }
