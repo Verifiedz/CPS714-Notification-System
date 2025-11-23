@@ -148,7 +148,7 @@ This document describes the test strategy and test cases for the CPS714 Notifica
 
 ### 7. API Layer - apiHelpers
 
-**File**: `src/api/_utils/apiHelpers.test.ts`
+**File**: `src/pages/api/_utils/apiHelpers.test.ts`
 **Purpose**: Tests common API utilities
 
 | Test ID | Test Case | Expected Result |
@@ -170,7 +170,7 @@ This document describes the test strategy and test cases for the CPS714 Notifica
 
 ### 8. API Layer - auth
 
-**File**: `src/api/_utils/auth.test.ts`
+**File**: `src/pages/api/_utils/auth.test.ts`
 **Purpose**: Tests authentication and request metadata extraction
 
 #### 8.1 HMAC Verification
