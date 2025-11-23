@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireAuth, extractMeta } from '../_utils/auth';
 import { setServiceHeader, validateMethod, handleApiError } from '../_utils/apiHelpers';
-import { sendNotification } from '../../application/sendNotification';
+import { sendNotification } from '../../../application/sendNotification';
 
 export async function handler(req: NextApiRequest, res: NextApiResponse) {
   setServiceHeader(res);

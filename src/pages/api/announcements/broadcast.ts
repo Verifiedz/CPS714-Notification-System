@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { requireAuth, extractMeta } from '../_utils/auth';
 import { setServiceHeader, validateMethod, handleApiError } from '../_utils/apiHelpers';
-import { HttpMemberDirectoryClient } from '../../infrastructure/memberDirectoryClient';
-import { broadcastAnnouncement } from '../../application/broadcastAnnouncement';
+import { HttpMemberDirectoryClient } from '../../../infrastructure/memberDirectoryClient';
+import { broadcastAnnouncement } from '../../../application/broadcastAnnouncement';
 
 export async function handler(req: NextApiRequest, res: NextApiResponse) {
   setServiceHeader(res);

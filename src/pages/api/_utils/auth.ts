@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
-import { config } from '../../shared/config';
+import { config } from '../../../shared/config';
 
 /**
  * Compares two strings in constant time to prevent timing attacks
