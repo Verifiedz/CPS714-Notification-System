@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { setServiceHeader, validateMethod } from '../_utils/apiHelpers';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  res.setHeader('X-Service', 'Fithub');
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'METHOD_NOT_ALLOWED' });
-  }
+  setServiceHeader(res);
+  if (!validateMethod(req, res, 'GET')) return;
+
   res.status(200).json({
     service: 'Fithub',
     endpoints: [

@@ -1,10 +1,19 @@
 import { validateBroadcastInput, BroadcastInput } from "./validatePayload";
-import { emailProvider } from "../infastructure/emailProvider";
-import { smsProvider } from "../infastructure/smsProvider";
-import { logInfo, logError } from "../infastructure/logger";
-import { config } from "../infastructure/shared/config";
+import { emailProvider } from "../infrastructure/emailProvider";
+import { smsProvider } from "../infrastructure/smsProvider";
+import { logInfo, logError } from "../infrastructure/logger";
+import { config } from "../infrastructure/shared/config";
+import { aggregateBatchResults } from "./_utils/batchHelpers";
 
-// Interface for member directory - will be provided by external service
+// Constants for broadcast processing
+const DRY_RUN_SAMPLE_SIZE = 10; // Number of sample recipients to return in dry run
+const BATCH_SIZE = 15; // Number of members to process concurrently in each batch
+const PROGRESS_LOG_INTERVAL = 100; // Log progress every N members processed
+
+/**
+ * Interface for member directory service
+ * Provides async iteration over members in a given audience segment
+ */
 export interface MemberDirectory {
   listRecipients(segment: string): AsyncGenerator<{
     email?: string;
@@ -12,7 +21,15 @@ export interface MemberDirectory {
   }>;
 }
 
-// Used by Admin Dashboard to broadcast announcements to all members
+/**
+ * Broadcasts an announcement to multiple members in an audience segment
+ * Used by Admin Dashboard to send announcements to all members
+ * Supports dry run mode to preview recipients before sending
+ * Processes members in batches for better performance and error handling
+ * @param input - Broadcast details including message, channels, and audience segment
+ * @param memberDirectory - Service to fetch member list for the target segment
+ * @returns Object with total targets, sent counts, and any failure reasons
+ */
 export async function broadcastAnnouncement(
   input: BroadcastInput,
   memberDirectory: MemberDirectory
@@ -27,7 +44,7 @@ export async function broadcastAnnouncement(
     for await (const member of memberDirectory.listRecipients(
       input.audience.segment
     )) {
-      if (sample.length < 10) {
+      if (sample.length < DRY_RUN_SAMPLE_SIZE) {
         sample.push(member);
       }
       totalCount++;
@@ -85,7 +102,6 @@ export async function broadcastAnnouncement(
   let totalProcessed = 0;
   const failureReasons: Record<string, number> = {};
 
-  const batchSize = 15; // process 15 members at a time
   let batch: Array<{ email?: string; phone?: string }> = [];
 
   for await (const member of memberDirectory.listRecipients(
@@ -94,27 +110,21 @@ export async function broadcastAnnouncement(
     batch.push(member);
 
     // Process batch when it reaches the size limit
-    if (batch.length >= batchSize) {
+    if (batch.length >= BATCH_SIZE) {
       const batchPromises = batch.map((m) => sendToMember(m));
       const results = await Promise.allSettled(batchPromises);
 
       // Aggregate results from the batch
-      results.forEach((result) => {
-        if (result.status === "fulfilled") {
-          emailSentCount += result.value.emailSent;
-          smsSentCount += result.value.smsSent;
-          result.value.errors.forEach((err) => {
-            failureReasons[err] = (failureReasons[err] || 0) + 1;
-          });
-        }
-      });
+      const batchCounts = aggregateBatchResults(results, failureReasons);
+      emailSentCount += batchCounts.emailSent;
+      smsSentCount += batchCounts.smsSent;
 
       totalProcessed += batch.length;
       batch = []; // clear batch for next round
 
       // Log progress so we know it's working
-      if (totalProcessed % 100 === 0 || totalProcessed % 90 === 0) {
-        console.log(`Broadcast progress: ${totalProcessed} members processed`);
+      if (totalProcessed % PROGRESS_LOG_INTERVAL === 0) {
+        logInfo(`Broadcast progress: ${totalProcessed} members processed`);
       }
     }
 
@@ -130,15 +140,10 @@ export async function broadcastAnnouncement(
     const batchPromises = batch.map((m) => sendToMember(m));
     const results = await Promise.allSettled(batchPromises);
 
-    results.forEach((result) => {
-      if (result.status === "fulfilled") {
-        emailSentCount += result.value.emailSent;
-        smsSentCount += result.value.smsSent;
-        result.value.errors.forEach((err) => {
-          failureReasons[err] = (failureReasons[err] || 0) + 1;
-        });
-      }
-    });
+    // Aggregate results from final batch
+    const batchCounts = aggregateBatchResults(results, failureReasons);
+    emailSentCount += batchCounts.emailSent;
+    smsSentCount += batchCounts.smsSent;
 
     totalProcessed += batch.length;
   }

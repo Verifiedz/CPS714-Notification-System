@@ -1,10 +1,15 @@
 import { validateNotificationInput, NotificationInput } from "./validatePayload";
-import { emailProvider } from "../infastructure/emailProvider";
-import { smsProvider } from "../infastructure/smsProvider";
-import { formatMessage } from "../infastructure/messageFormatter";
-import { logInfo, logError } from "../infastructure/logger";
+import { emailProvider } from "../infrastructure/emailProvider";
+import { smsProvider } from "../infrastructure/smsProvider";
+import { formatMessage } from "../infrastructure/messageFormatter";
+import { logInfo, logError } from "../infrastructure/logger";
 
-// Used by Booking System for confirmations and Payment System for receipts
+/**
+ * Sends a notification to a single recipient via specified channels
+ * Used by Booking System for confirmations and Payment System for receipts
+ * @param input - Notification details including recipient, channels, template, and variables
+ * @returns Object with results for each channel attempted (success, error, or skipped)
+ */
 export async function sendNotification(input: NotificationInput) {
   validateNotificationInput(input);
 
