@@ -1,0 +1,578 @@
+{
+  "info": {
+    "name": "CPS714 Notification System - Live Demo",
+    "description": "End-to-end testing collection for the 3-layer notification system with real SendGrid and Twilio integration.\n\n**Before using:**\n1. Update the `baseUrl` variable to your server address (default: http://localhost:3000)\n2. Ensure your .env file has real SendGrid and Twilio credentials\n3. Start the server with: npm run dev\n\n**The 3 Layers:**\n- Layer 1 (API): HTTP endpoints and authentication\n- Layer 2 (Application): Business logic and orchestration\n- Layer 3 (Infrastructure): SendGrid and Twilio integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "test-api-key-12345",
+      "type": "string"
+    },
+    {
+      "key": "testEmail",
+      "value": "your-test-email@gmail.com",
+      "type": "string",
+      "description": "Replace with your real email address"
+    },
+    {
+      "key": "testPhone",
+      "value": "+14165551234",
+      "type": "string",
+      "description": "Replace with your verified Twilio test phone number"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "item": [
+        {
+          "name": "Health Check - Verify Server is Running",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/_health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "_health"]
+            },
+            "description": "Tests the health endpoint to verify the server is running and responsive."
+          },
+          "response": []
+        }
+      ],
+      "description": "Basic health check to verify the API is running"
+    },
+    {
+      "name": "2. Single Notifications",
+      "item": [
+        {
+          "name": "Send Email Only",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient\": {\n    \"email\": \"{{testEmail}}\"\n  },\n  \"channels\": [\"EMAIL\"],\n  \"template\": \"Hello {{name}}! Your order #{{orderId}} has been confirmed. Total: ${{amount}}.\",\n  \"variables\": {\n    \"name\": \"John Doe\",\n    \"orderId\": \"ORD-12345\",\n    \"amount\": \"99.99\",\n    \"subject\": \"Order Confirmation\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            },
+            "description": "Sends an email notification with template variables. Check your inbox!"
+          },
+          "response": []
+        },
+        {
+          "name": "Send SMS Only",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient\": {\n    \"phone\": \"{{testPhone}}\"\n  },\n  \"channels\": [\"SMS\"],\n  \"template\": \"Hi {{name}}! Your package is out for delivery. Track: {{trackingUrl}}\",\n  \"variables\": {\n    \"name\": \"Jane\",\n    \"trackingUrl\": \"https://track.example.com/ABC123\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            },
+            "description": "Sends an SMS notification. Phone number must be verified in Twilio (trial limitation)."
+          },
+          "response": []
+        },
+        {
+          "name": "Send Both Email + SMS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "postman-test-{{$timestamp}}",
+                "type": "text",
+                "description": "Optional correlation ID for tracking"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient\": {\n    \"email\": \"{{testEmail}}\",\n    \"phone\": \"{{testPhone}}\"\n  },\n  \"channels\": [\"EMAIL\", \"SMS\"],\n  \"template\": \"Payment of ${{amount}} received! Reference: {{refNumber}}. Thank you!\",\n  \"variables\": {\n    \"amount\": \"45.00\",\n    \"refNumber\": \"TXN-9876\",\n    \"subject\": \"Payment Confirmation\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            },
+            "description": "Demonstrates multi-channel capability. Sends to BOTH email and SMS simultaneously through all 3 layers."
+          },
+          "response": []
+        },
+        {
+          "name": "With Custom Correlation ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "BOOKING-2025-001",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient\": {\n    \"email\": \"{{testEmail}}\"\n  },\n  \"channels\": [\"EMAIL\"],\n  \"template\": \"Booking confirmed for {{date}} at {{time}}. Location: {{location}}.\",\n  \"variables\": {\n    \"date\": \"March 15, 2025\",\n    \"time\": \"2:00 PM\",\n    \"location\": \"Community Center\",\n    \"subject\": \"Booking Confirmation\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            },
+            "description": "Tests correlation ID tracking across all layers. Check server logs for the correlation ID."
+          },
+          "response": []
+        }
+      ],
+      "description": "Single notification tests - email, SMS, and multi-channel"
+    },
+    {
+      "name": "3. Broadcast Announcements",
+      "item": [
+        {
+          "name": "Broadcast - Dry Run Preview",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"IMPORTANT: Pool facilities will be closed for maintenance this Sunday, Nov 26th.\",\n  \"channels\": [\"EMAIL\"],\n  \"audience\": {\n    \"segment\": \"all-members\"\n  },\n  \"dryRun\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/announcements/broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "announcements", "broadcast"]
+            },
+            "description": "Preview mode - shows who would receive the broadcast without actually sending. Returns sample member list."
+          },
+          "response": []
+        },
+        {
+          "name": "Broadcast - Live Email to All Members",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Flash Sale Alert! Get 30% off all premium memberships this weekend only. Don't miss out!\",\n  \"channels\": [\"EMAIL\"],\n  \"audience\": {\n    \"segment\": \"premium-users\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/announcements/broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "announcements", "broadcast"]
+            },
+            "description": "LIVE broadcast - sends emails to all members in the mock directory (4 members). Check your email if you're in the mock list!"
+          },
+          "response": []
+        },
+        {
+          "name": "Broadcast - Live SMS to All Members",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Reminder: Your membership renewal is due in 7 days. Renew now to avoid interruption.\",\n  \"channels\": [\"SMS\"],\n  \"audience\": {\n    \"segment\": \"expiring-members\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/announcements/broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "announcements", "broadcast"]
+            },
+            "description": "LIVE SMS broadcast. Note: Twilio trial accounts can only send to verified numbers."
+          },
+          "response": []
+        },
+        {
+          "name": "Broadcast - Multi-Channel (Email + SMS)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Emergency Notice: Facility will close early today at 5 PM due to weather conditions. Stay safe!\",\n  \"channels\": [\"EMAIL\", \"SMS\"],\n  \"audience\": {\n    \"segment\": \"all-members\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/announcements/broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "announcements", "broadcast"]
+            },
+            "description": "Broadcasts to both EMAIL and SMS channels. Tests graceful handling when members have only email or only phone."
+          },
+          "response": []
+        }
+      ],
+      "description": "Broadcast tests - dry run and live sending to member segments"
+    },
+    {
+      "name": "4. Error Scenarios",
+      "item": [
+        {
+          "name": "Missing API Key (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient\": {\n    \"email\": \"test@example.com\"\n  },\n  \"channels\": [\"EMAIL\"],\n  \"template\": \"This should fail!\",\n  \"variables\": {}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            },
+            "description": "Tests authentication - should return 401 Unauthorized"
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid API Key (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "wrong-api-key",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient\": {\n    \"email\": \"test@example.com\"\n  },\n  \"channels\": [\"EMAIL\"],\n  \"template\": \"This should also fail!\",\n  \"variables\": {}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            },
+            "description": "Tests invalid API key - should return 401 Unauthorized"
+          },
+          "response": []
+        },
+        {
+          "name": "Missing Recipient (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"channels\": [\"EMAIL\"],\n  \"template\": \"Missing recipient field\",\n  \"variables\": {}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            },
+            "description": "Tests validation - should return 400 Bad Request with validation error"
+          },
+          "response": []
+        },
+        {
+          "name": "Empty Channels Array (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient\": {\n    \"email\": \"test@example.com\"\n  },\n  \"channels\": [],\n  \"template\": \"No channels specified\",\n  \"variables\": {}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            },
+            "description": "Tests channel validation - should return 400 Bad Request"
+          },
+          "response": []
+        },
+        {
+          "name": "Missing Message in Broadcast (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"channels\": [\"EMAIL\"],\n  \"audience\": {\n    \"segment\": \"all-members\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/announcements/broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "announcements", "broadcast"]
+            },
+            "description": "Tests broadcast validation - should return 400 Bad Request"
+          },
+          "response": []
+        },
+        {
+          "name": "Wrong HTTP Method (405)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            },
+            "description": "Tests HTTP method validation - should return 405 Method Not Allowed"
+          },
+          "response": []
+        }
+      ],
+      "description": "Error handling and validation tests"
+    },
+    {
+      "name": "5. Real-World Scenarios",
+      "item": [
+        {
+          "name": "Scenario: Order Confirmation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "ORDER-{{$timestamp}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient\": {\n    \"email\": \"{{testEmail}}\",\n    \"phone\": \"{{testPhone}}\"\n  },\n  \"channels\": [\"EMAIL\", \"SMS\"],\n  \"template\": \"Thank you {{customerName}}! Order #{{orderNumber}} confirmed. Items: {{itemCount}}. Total: ${{total}}. Estimated delivery: {{deliveryDate}}.\",\n  \"variables\": {\n    \"customerName\": \"Sarah Johnson\",\n    \"orderNumber\": \"ORD-2025-11-001\",\n    \"itemCount\": \"3\",\n    \"total\": \"127.50\",\n    \"deliveryDate\": \"Nov 28, 2025\",\n    \"subject\": \"Order Confirmed - ORD-2025-11-001\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            },
+            "description": "Real-world scenario: E-commerce order confirmation sent via both email and SMS"
+          },
+          "response": []
+        },
+        {
+          "name": "Scenario: Password Reset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipient\": {\n    \"email\": \"{{testEmail}}\"\n  },\n  \"channels\": [\"EMAIL\"],\n  \"template\": \"Hi {{username}}, you requested a password reset. Your code is: {{resetCode}}. This code expires in {{expiryMinutes}} minutes.\",\n  \"variables\": {\n    \"username\": \"john_doe\",\n    \"resetCode\": \"RESET-8472\",\n    \"expiryMinutes\": \"15\",\n    \"subject\": \"Password Reset Request\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", "send"]
+            },
+            "description": "Real-world scenario: Password reset email with verification code"
+          },
+          "response": []
+        },
+        {
+          "name": "Scenario: Maintenance Alert",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"System Maintenance: Our platform will be offline for scheduled maintenance on Nov 25, 2025 from 2:00 AM to 4:00 AM EST. We apologize for any inconvenience.\",\n  \"channels\": [\"EMAIL\", \"SMS\"],\n  \"audience\": {\n    \"segment\": \"all-members\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/announcements/broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "announcements", "broadcast"]
+            },
+            "description": "Real-world scenario: System maintenance announcement to all users via multiple channels"
+          },
+          "response": []
+        }
+      ],
+      "description": "Real-world use case scenarios demonstrating practical applications"
+    }
+  ]
+}
