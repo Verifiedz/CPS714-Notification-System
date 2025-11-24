@@ -1,0 +1,124 @@
+{
+  "info": {
+    "name": "CPS714 Notification System - Live Demo",
+    "description": "End-to-end testing collection for the 3-layer notification system with real SendGrid and Twilio integration.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "test-api-key-12345",
+      "type": "string"
+    },
+    {
+      "key": "testEmail",
+      "value": "anthonyteti1@gmail.com",
+      "type": "string"
+    },
+    {
+      "key": "testPhone",
+      "value": "+14168079051",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/_health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "_health"]
+        }
+      }
+    },
+    {
+      "name": "Send Email Only",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"recipient\": {\n    \"email\": \"{{testEmail}}\"\n  },\n  \"channels\": [\"EMAIL\"],\n  \"template\": \"Hello {{name}}! Your order #{{orderId}} has been confirmed.\",\n  \"variables\": {\n    \"name\": \"John Doe\",\n    \"orderId\": \"12345\",\n    \"subject\": \"Order Confirmation\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/notifications/send",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notifications", "send"]
+        }
+      }
+    },
+    {
+      "name": "Send Both Email + SMS",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"recipient\": {\n    \"email\": \"{{testEmail}}\",\n    \"phone\": \"{{testPhone}}\"\n  },\n  \"channels\": [\"EMAIL\", \"SMS\"],\n  \"template\": \"Payment of ${{amount}} received! Reference: {{refNumber}}. Thank you!\",\n  \"variables\": {\n    \"amount\": \"45.00\",\n    \"refNumber\": \"TXN-9876\",\n    \"subject\": \"Payment Confirmation\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/notifications/send",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notifications", "send"]
+        }
+      }
+    },
+    {
+      "name": "Broadcast - Dry Run",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"System maintenance scheduled for tonight at 11 PM.\",\n  \"channels\": [\"EMAIL\"],\n  \"audience\": {\n    \"segment\": \"all-members\"\n  },\n  \"dryRun\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/announcements/broadcast",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "announcements", "broadcast"]
+        }
+      }
+    }
+  ]
+}

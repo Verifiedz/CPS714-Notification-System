@@ -9,6 +9,7 @@ export interface AppConfig {
 
   // Email provider (Sendgrid)
   sendgridApiKey: string;
+  sendgridFromEmail: string;
 
   // SMS provider (Twilio)
   twilioAccountSid: string;
@@ -38,6 +39,7 @@ export const config: AppConfig = {
 
   // Email provider
   sendgridApiKey: readEnv('SENDGRID_API_KEY', 'mock-sendgrid-key'),
+  sendgridFromEmail: readEnv('SENDGRID_FROM_EMAIL', 'noreply@example.com'),
 
   // SMS provider
   twilioAccountSid: readEnv('TWILIO_ACCOUNT_SID', 'mock-account-sid'),
