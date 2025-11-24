@@ -6,7 +6,6 @@
 export interface AppConfig {
   // Authentication
   apiKey: string;
-  hmacSecret: string;
 
   // Email provider (Sendgrid)
   sendgridApiKey: string;
@@ -35,8 +34,7 @@ function readEnv(key: string, defaultValue: string = ''): string {
  */
 export const config: AppConfig = {
   // Authentication
-  apiKey: readEnv('API_KEY'),
-  hmacSecret: readEnv('HMAC_SECRET'),
+  apiKey: readEnv('API_KEY', 'test-api-key-123'),
 
   // Email provider
   sendgridApiKey: readEnv('SENDGRID_API_KEY', 'mock-sendgrid-key'),

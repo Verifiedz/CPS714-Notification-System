@@ -173,44 +173,31 @@ This document describes the test strategy and test cases for the CPS714 Notifica
 **File**: `src/pages/api/_utils/auth.test.ts`
 **Purpose**: Tests authentication and request metadata extraction
 
-#### 8.1 HMAC Verification
+#### 8.1 API Key Validation
 
 | Test ID | Test Case | Expected Result |
 |---------|-----------|-----------------|
-| AU-01 | Valid HMAC signature | Returns true |
-| AU-02 | Invalid HMAC signature | Returns false |
-| AU-03 | Missing timestamp header | Returns false |
-| AU-04 | Missing signature header | Returns false |
-| AU-05 | HMAC secret not configured | Returns false |
-| AU-06 | Different body content | Correctly verifies different payloads |
+| AU-01 | Valid API key | Returns true |
+| AU-02 | Invalid API key | Returns false |
+| AU-03 | Missing API key header | Returns false |
+| AU-04 | API key not configured | Returns false |
 
-#### 8.2 API Key Validation
+#### 8.2 Authentication Middleware
 
 | Test ID | Test Case | Expected Result |
 |---------|-----------|-----------------|
-| AU-07 | Valid API key | Returns true |
-| AU-08 | Invalid API key | Returns false |
-| AU-09 | Missing API key header | Returns false |
-| AU-10 | API key not configured | Returns false |
+| AU-05 | Valid API key | Returns true, no response sent |
+| AU-06 | Invalid API key | Returns false, sends 401 UNAUTHORIZED |
 
-#### 8.3 Authentication Middleware
+#### 8.3 Metadata Extraction
 
 | Test ID | Test Case | Expected Result |
 |---------|-----------|-----------------|
-| AU-11 | Valid HMAC when configured | Returns true, no response sent |
-| AU-12 | Invalid HMAC | Returns false, sends 401 BAD_SIGNATURE |
-| AU-13 | Fallback to API key | Uses API key when HMAC not configured |
-| AU-14 | Invalid API key | Returns false, sends 401 UNAUTHORIZED |
-
-#### 8.4 Metadata Extraction
-
-| Test ID | Test Case | Expected Result |
-|---------|-----------|-----------------|
-| AU-15 | Extract correlation ID from headers | Returns provided correlation ID |
-| AU-16 | Generate correlation ID if not provided | Returns auto-generated UUID |
-| AU-17 | Extract idempotency key | Returns idempotency key when provided |
-| AU-18 | Idempotency key not provided | Returns undefined for idempotency key |
-| AU-19 | Extract both IDs | Returns both correlation ID and idempotency key |
+| AU-07 | Extract correlation ID from headers | Returns provided correlation ID |
+| AU-08 | Generate correlation ID if not provided | Returns auto-generated UUID |
+| AU-09 | Extract idempotency key | Returns idempotency key when provided |
+| AU-10 | Idempotency key not provided | Returns undefined for idempotency key |
+| AU-11 | Extract both IDs | Returns both correlation ID and idempotency key |
 
 ---
 
@@ -270,10 +257,10 @@ This document describes the test strategy and test cases for the CPS714 Notifica
 | smsProvider | 4 | Mock SMS sending |
 | logger | 2 | Log formatting |
 | apiHelpers | 7 | API utilities, error mapping |
-| auth | 19 | HMAC, API key, metadata extraction |
+| auth | 11 | API key validation, metadata extraction |
 | broadcastAnnouncement | 14 | Broadcast logic, batch processing |
 | batchHelpers | 6 | Result aggregation |
-| **TOTAL** | **87** | |
+| **TOTAL** | **79** | |
 
 ## Running Tests
 

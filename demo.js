@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+require('dotenv').config();
 
 // ANSI color codes for terminal output
 const colors = {
@@ -12,14 +13,8 @@ const colors = {
 };
 
 // Test configuration
-const HMAC_SECRET = 'test-hmac-secret-67890';
+const API_KEY = process.env.API_KEY;
 const API_URL = 'http://localhost:3001';
-
-// Create HMAC signature
-function createSignature(timestamp, body) {
-  const message = `${timestamp}.${JSON.stringify(body)}`;
-  return crypto.createHmac('sha256', HMAC_SECRET).update(message).digest('hex');
-}
 
 function printHeader(text) {
   console.log(`\n${colors.bright}${colors.cyan}${'='.repeat(70)}${colors.reset}`);
@@ -60,16 +55,12 @@ async function demo1_SendNotification() {
 
   printRequest('POST', '/api/notifications/send', body);
 
-  const timestamp = Date.now().toString();
-  const signature = createSignature(timestamp, body);
-
   try {
     const response = await fetch(`${API_URL}/api/notifications/send`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Timestamp': timestamp,
-        'X-Signature': signature,
+        'x-api-key': API_KEY,
         'X-Correlation-Id': 'demo-send-001'
       },
       body: JSON.stringify(body)
@@ -97,16 +88,12 @@ async function demo2_BroadcastDryRun() {
 
   printRequest('POST', '/api/announcements/broadcast', body);
 
-  const timestamp = Date.now().toString();
-  const signature = createSignature(timestamp, body);
-
   try {
     const response = await fetch(`${API_URL}/api/announcements/broadcast`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Timestamp': timestamp,
-        'X-Signature': signature,
+        'x-api-key': API_KEY,
         'X-Correlation-Id': 'demo-broadcast-002'
       },
       body: JSON.stringify(body)
@@ -131,16 +118,12 @@ async function demo3_ValidationError() {
 
   printRequest('POST', '/api/notifications/send', body);
 
-  const timestamp = Date.now().toString();
-  const signature = createSignature(timestamp, body);
-
   try {
     const response = await fetch(`${API_URL}/api/notifications/send`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Timestamp': timestamp,
-        'X-Signature': signature
+        'x-api-key': API_KEY
       },
       body: JSON.stringify(body)
     });
@@ -166,7 +149,7 @@ async function runDemo() {
 ${colors.reset}`);
 
   console.log(`${colors.cyan}Server: ${API_URL}${colors.reset}`);
-  console.log(`${colors.cyan}Authentication: HMAC-SHA256${colors.reset}\n`);
+  console.log(`${colors.cyan}Authentication: API KEY${colors.reset}\n`);
 
   await demo1_SendNotification();
   await new Promise(resolve => setTimeout(resolve, 1500)); // Pause between demos
@@ -187,7 +170,7 @@ ${colors.reset}\n`);
   console.log(`  - Template variable substitution`);
   console.log(`  - Broadcast to user segments`);
   console.log(`  - Dry run mode for testing`);
-  console.log(`  - HMAC authentication`);
+  console.log(`  - API Key authentication`);
   console.log(`  - Input validation and error handling\n`);
 }
 
