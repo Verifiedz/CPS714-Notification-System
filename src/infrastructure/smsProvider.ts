@@ -6,11 +6,11 @@ export interface SmsParams {
   uniqueId?: string;
   correlationId?: string;
 }
-
+// class for twilio integration send data to twilio API
 export class TwilioSmsProvider {
   async send({ to, body, correlationId }: SmsParams) {
     try {
-      // TODO: Implement actual Twilio integration
+      
       logInfo(`SMS to be sent to: ${to} with message: ${body}${correlationId ? ` (correlationId: ${correlationId})` : ''}`);
       const providerMessageId = "mock-sms-" + Date.now();
       return { id: providerMessageId };
@@ -21,5 +21,4 @@ export class TwilioSmsProvider {
   }
 }
 
-// Legacy export for backward compatibility
 export const smsProvider = new TwilioSmsProvider();

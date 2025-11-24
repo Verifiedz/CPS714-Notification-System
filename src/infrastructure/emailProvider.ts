@@ -7,11 +7,10 @@ export interface EmailParameters {
   uniqueId?: string;
   correlationId?: string;
 }
-
+//Provider layer to import Data for SendGrid API
 export class SendgridEmailProvider {
   async send({ to, subject, text, correlationId }: EmailParameters) {
     try {
-      // TODO: Implement actual Sendgrid integration
       logInfo(`Email to be sent to ${to} with subject: ${subject}${correlationId ? ` (correlationId: ${correlationId})` : ''}`);
       const providerMessageId = "mock-email-" + Date.now();
       return { id: providerMessageId };

@@ -6,9 +6,6 @@ import { logInfo, logError } from "../infrastructure/logger";
 
 /**
  * Sends a notification to a single recipient via specified channels
- * Used by Booking System for confirmations and Payment System for receipts
- * @param input - Notification details including recipient, channels, template, and variables
- * @returns Object with results for each channel attempted (success, error, or skipped)
  */
 export async function sendNotification(input: NotificationInput) {
   validateNotificationInput(input);

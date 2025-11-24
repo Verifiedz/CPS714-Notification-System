@@ -25,8 +25,6 @@ export interface BroadcastInput {
 /**
  * Validates notification input before sending
  * Ensures recipient has at least one contact method and all required fields are present
- * @param input - The notification input to validate
- * @throws {Error} VALIDATION_ERROR if input is invalid
  */
 export function validateNotificationInput(input: any): void {
   if (!input || typeof input !== 'object') {
@@ -53,8 +51,6 @@ export function validateNotificationInput(input: any): void {
 /**
  * Validates broadcast announcement input before processing
  * Ensures message is not empty and target audience is specified
- * @param input - The broadcast input to validate
- * @throws {Error} VALIDATION_ERROR if input is invalid
  */
 export function validateBroadcastInput(input: any): void {
   if (!input || typeof input !== 'object') {

@@ -6,8 +6,6 @@ import { config } from '../../../shared/config';
 
 /**
  * Validates static API key from request headers
- * @param req - Next.js API request with header X-API-Key
- * @returns true if API key matches configured key, false otherwise
  */
 export function isApiKeyValid(req: NextApiRequest) {
   const key = String(req.headers['x-api-key'] || '');
@@ -17,9 +15,7 @@ export function isApiKeyValid(req: NextApiRequest) {
 /**
  * Authenticates request using API key
  * Sends 401 response if authentication fails
- * @param req - Next.js API request
- * @param res - Next.js API response
- * @returns true if authenticated, false if authentication failed (response already sent)
+ * Authenticates services that are granted acccess to service (Booking, Payment, Admin)
  */
 export function requireAuth(req: NextApiRequest, res: NextApiResponse): boolean {
   if (!isApiKeyValid(req)) {
@@ -32,8 +28,6 @@ export function requireAuth(req: NextApiRequest, res: NextApiResponse): boolean 
 /**
  * Extracts metadata from request headers for tracking and idempotency
  * Generates correlation ID if not provided for request tracing
- * @param req - Next.js API request
- * @returns Object with correlationId and optional idempotencyKey
  */
 export function extractMeta(req: NextApiRequest) {
   const correlationId = (req.headers['x-correlation-id'] as string) || crypto.randomUUID();

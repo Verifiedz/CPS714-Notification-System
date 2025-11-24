@@ -10,10 +10,7 @@ const DRY_RUN_SAMPLE_SIZE = 10; // Number of sample recipients to return in dry 
 const BATCH_SIZE = 15; // Number of members to process concurrently in each batch
 const PROGRESS_LOG_INTERVAL = 100; // Log progress every N members processed
 
-/**
- * Interface for member directory service
- * Provides async iteration over members in a given audience segment
- */
+
 export interface MemberDirectory {
   listRecipients(segment: string): AsyncGenerator<{
     email?: string;
@@ -26,9 +23,6 @@ export interface MemberDirectory {
  * Used by Admin Dashboard to send announcements to all members
  * Supports dry run mode to preview recipients before sending
  * Processes members in batches for better performance and error handling
- * @param input - Broadcast details including message, channels, and audience segment
- * @param memberDirectory - Service to fetch member list for the target segment
- * @returns Object with total targets, sent counts, and any failure reasons
  */
 export async function broadcastAnnouncement(
   input: BroadcastInput,
@@ -49,7 +43,7 @@ export async function broadcastAnnouncement(
       }
       totalCount++;
 
-      // Safety limit even for dry run
+      // limited dry run amount
       if (totalCount >= config.maxRecipients) {
         logInfo("Hit max recipient limit during dry run");
         break;

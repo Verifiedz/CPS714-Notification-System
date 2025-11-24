@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 /**
- * Sets the common X-Service header on the response
- * @param res - Next.js API response object
+ set header for service
  */
 export function setServiceHeader(res: NextApiResponse): void {
   res.setHeader('X-Service', 'Fithub');
@@ -10,11 +9,7 @@ export function setServiceHeader(res: NextApiResponse): void {
 
 /**
  * Validates that the request method matches the expected method
- * Returns true if valid, sends 405 error and returns false if invalid
- * @param req - Next.js API request object
- * @param res - Next.js API response object
- * @param expectedMethod - The expected HTTP method (GET, POST, etc.)
- * @returns true if method is valid, false otherwise
+ * Returns true if valid
  */
 export function validateMethod(
   req: NextApiRequest,
@@ -30,11 +25,7 @@ export function validateMethod(
 
 /**
  * Handles API errors by determining appropriate status code and sending response
- * - VALIDATION_ERROR: 400
- * - TOO_MANY_TARGETS: 413
- * - Other errors: 500
- * @param e - The error object
- * @param res - Next.js API response object
+ * Error handling logic for all generic status codes
  */
 export function handleApiError(e: any, res: NextApiResponse): void {
   const msg = String(e?.message || 'UNKNOWN_ERROR');

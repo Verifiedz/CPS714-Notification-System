@@ -1,11 +1,6 @@
 /**
  * Formats a message template by replacing variables with actual values
- * Variables are specified using {{variableName}} syntax in the template
- * For EMAIL channel, extracts subject from variables or uses default
- * @param template - Message template with {{variable}} placeholders
- * @param variables - Key-value pairs to replace in template
- * @param channel - Channel type (EMAIL or SMS) to determine if subject is needed
- * @returns Object with formatted text and optional subject (for EMAIL only)
+ * Format messaeg to inlcude RegExp based textual changes. Allow for flexible format.
  */
 export function formatMessage(
   template: string,

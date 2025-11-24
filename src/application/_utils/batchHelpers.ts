@@ -1,9 +1,8 @@
 /**
  * Aggregates batch results from Promise.allSettled
  * Counts successful sends and tracks failure reasons
- * @param results - Array of settled promise results
- * @param failureReasons - Object to accumulate failure reason counts (mutated)
- * @returns Object with total email and SMS sent counts
+ * filter out status for result failures and error
+ * will contrast between successful and failed transmissons.
  */
 export function aggregateBatchResults(
   results: PromiseSettledResult<{
