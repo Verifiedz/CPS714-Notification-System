@@ -1,4 +1,9 @@
+import sgMail from '@sendgrid/mail';
+import { config } from '../shared/config';
 import { logInfo, logError } from "./logger";
+
+// Initialize SendGrid with API key from config
+sgMail.setApiKey(config.sendgridApiKey);
 
 export interface EmailParameters {
   to: string;
@@ -11,11 +16,21 @@ export interface EmailParameters {
 export class SendgridEmailProvider {
   async send({ to, subject, text, correlationId }: EmailParameters) {
     try {
-      logInfo(`Email to be sent to ${to} with subject: ${subject}${correlationId ? ` (correlationId: ${correlationId})` : ''}`);
-      const providerMessageId = "mock-email-" + Date.now();
+      // Real SendGrid integration
+      const msg = {
+        to,
+        from: config.sendgridFromEmail || 'noreply@example.com',
+        subject,
+        text,
+      };
+
+      const response = await sgMail.send(msg);
+      const providerMessageId = response[0].headers['x-message-id'] || 'sent-' + Date.now();
+
+      logInfo(`✓ Email sent to ${to} with subject: ${subject}${correlationId ? ` (correlationId: ${correlationId})` : ''} - Message ID: ${providerMessageId}`);
       return { id: providerMessageId };
     } catch (e: any) {
-      logError(`Error occurred: Email failed to send to ${to}${correlationId ? ` (correlationId: ${correlationId})` : ''} - ${e.message}`);
+      logError(`✗ Email failed to send to ${to}${correlationId ? ` (correlationId: ${correlationId})` : ''} - ${e.message}`);
       throw e;
     }
   }
