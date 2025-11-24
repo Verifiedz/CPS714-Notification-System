@@ -19,7 +19,7 @@ export class SendgridEmailProvider {
       // Real SendGrid integration
       const msg = {
         to,
-        from: config.sendgridFromEmail || 'noreply@example.com', // You'll set this in .env
+        from: config.sendgridFromEmail || 'noreply@example.com',
         subject,
         text,
       };
