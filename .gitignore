@@ -8,6 +8,7 @@ yarn-error.log*
 .next/
 dist/
 out/
+coverage/
 
 # Env files
 .env
@@ -26,7 +27,18 @@ Thumbs.db
 # IDE files
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # Logs
 logs/
 *.log
+
+# Cache
+.eslintcache
+.cache/
+.turbo/
+
+# Deployment
+.vercel/
