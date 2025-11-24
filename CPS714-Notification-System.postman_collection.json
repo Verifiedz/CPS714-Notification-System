@@ -17,12 +17,12 @@
     },
     {
       "key": "testEmail",
-      "value": "your-test-email@gmail.com",
+      "value": "anthonyteti1@gmail.com",
       "type": "string"
     },
     {
       "key": "testPhone",
-      "value": "+14165551234",
+      "value": "+14168079051",
       "type": "string"
     }
   ],
@@ -61,8 +61,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"recipient\": {\n    \"email\": \"{{testEmail}}\"\n  },
-\n  \"channels\": [\"EMAIL\"],\n  \"template\": \"Hello {{name}}! Your order #{{orderId}} has been confirmed.\",\n  \"variables\": {\n    \"name\": \"John Doe\",\n    \"orderId\": \"12345\",\n    \"subject\": \"Order Confirmation\"\n  }\n}"
+          "raw": "{\n  \"recipient\": {\n    \"email\": \"{{testEmail}}\"\n  },\n  \"channels\": [\"EMAIL\"],\n  \"template\": \"Hello {{name}}! Your order #{{orderId}} has been confirmed.\",\n  \"variables\": {\n    \"name\": \"John Doe\",\n    \"orderId\": \"12345\",\n    \"subject\": \"Order Confirmation\"\n  }\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/api/notifications/send",
